@@ -85,11 +85,11 @@ WSGI_APPLICATION = 'library.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'library_db1',  # اسم قاعدة البيانات التي أنشأتها
-        'USER': 'root',  # اسم المستخدم الافتراضي في MySQL
-        'PASSWORD': '',  # اتركه فارغًا إذا لم تضع كلمة مرور عند تثبيت MySQL
-        'HOST': '127.0.0.1',  # أو 'localhost'
-        'PORT': '3306',  # إذا كنت تستخدم MariaDB على XAMPP، قد يكون 3307 بدلاً من 3306
+        'NAME': 'library_db1',  
+        'USER': 'root',  
+        'PASSWORD': '',  
+        'HOST': '127.0.0.1',  
+        'PORT': '3306',  
     }
 }
 

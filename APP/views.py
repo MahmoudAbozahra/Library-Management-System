@@ -80,11 +80,11 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)  # تحقق من بيانات المستخدم
+        user = authenticate(request, username=username, password=password)  
 
         if user is not None:
-            login(request, user)  # تسجيل الدخول
-            return redirect("/")  # إعادة توجيه للصفحة الرئيسية بعد تسجيل الدخول
+            login(request, user)  
+            return redirect("/")  
         else:
             return render(request, "pages/login.html", {"error": "Invalid username or password"})
 
