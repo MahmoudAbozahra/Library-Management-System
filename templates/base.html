@@ -43,7 +43,14 @@
     </div>
     <!-- ./wrapper -->
 
+<script>
 
+    $(document).ready(function(){
+        setTimeout(function(){
+            $('.container').fadeOut('slow');
+        }, 3000);
+    });
+</script>
     <!-- REQUIRED SCRIPTS -->
     <script src="{% static 'plugins/jquery_datepacker/jquery_ui.js' %}"></script>
 

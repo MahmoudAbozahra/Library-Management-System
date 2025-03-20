@@ -1,20 +1,12 @@
  {% extends "base.html" %}
 
-
-
-
 {% block content %}
+{% include 'parts/alerts.html' %}
 <!-- في المكان ده هحط المحتوى -->
 <div style="direction: rtl;" class="wrapper">
-
-
-
-
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
-
-
         <!--الاحصائيات-->
         <div class="content">
             <div class="container-fluid">
@@ -34,7 +26,6 @@
                                     </p>
                                 </div>
                                 <!-- /.d-flex -->
-
                                 <div class="position-relative mb-4">
                                     <canvas id="visitors-chart" height="200"></canvas>
                                 </div>
@@ -43,13 +34,11 @@
                         <!-- /.card -->
                     </div>
                     <!-- /.col-md-6 -->
-
-
                     {% for book in books %}
                      {% if book.price != None %}
                      {% if book.status == 'sold' %}
                        <p class="total_price"> {{book.price}} </p>
-                    
+
                     {% endif %}
                     {% endif %}
                     {% if book.total_rental != None %}
@@ -59,11 +48,6 @@
                    {% endif %}
                    {% endif %}
                     {% endfor %}
-
-
-
-
-
 
                     <div class="col-lg-6">
                         <div class="card">
