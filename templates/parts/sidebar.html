@@ -13,7 +13,9 @@
             <div class="image">
             </div>
             <div class="info">
-                <a href="{% url 'index' %}" class="d-block">Mahmoud Abozahra</a>
+                <a href="{% url 'index' %}" class="d-block">
+                    <span>user:</span>{{ request.user.username }}<i class="fa fa-user" aria-hidden="true"></i>
+                </a>
             </div>
         </div>
 
@@ -25,7 +27,7 @@
                     <a href="{% url 'books' %}" class="nav-link">
                         <i class="nav-icon fas fa-th"></i>
                         <p>
-                            New Books
+                           Books
                         </p>
                     </a>
                 </li>

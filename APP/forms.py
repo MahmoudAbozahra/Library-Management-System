@@ -1,5 +1,8 @@
 from django import forms
-from .models import Books,Category
+from .models import *
+from django.contrib.auth.forms import UserCreationForm ,AuthenticationForm
+from django.contrib.auth.models import User
+from django.forms.widgets import PasswordInput,TextInput
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -14,9 +17,10 @@ class BookForm(forms.ModelForm):
     class Meta:
         model = Books
         fields = ['title','author','photo_book','photo_author','pages','price',
-                  'retal_price_day','retal_period','total_rental','status','category',]
+                  'retal_price_day','retal_period','total_rental','status','category','id']
         
         widgets={
+            
             'title': forms.TextInput(attrs={'class':'form-control'}),
             'author': forms.TextInput(attrs={'class':'form-control'}),
             'photo_book': forms.FileInput(attrs={'class':'form-control'}),
@@ -29,3 +33,21 @@ class BookForm(forms.ModelForm):
             'status': forms.Select(attrs={'class':'form-control'}),
             'category': forms.Select(attrs={'class':'form-control'}),
         }
+        
+        
+        
+class CreateUserForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username','password1','password2']
+        help_texts = {
+            'username': 'Required. 150 characters or fewer.',
+            'password1': 'Your password must contain at least 8 characters.',
+            'password2': 'Enter the same password as before, for verification.',
+            }
+        
+        
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(widget=TextInput())
+    password = forms.CharField(widget=PasswordInput())

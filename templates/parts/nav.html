@@ -9,6 +9,9 @@
         <li class="nav-item d-none d-sm-inline-block">
             <a href="{% url 'index' %}" class="nav-link">Home</a>
         </li>
+        <a href="{% url 'books' %}" class="nav-link">
+            <p>Books</p>
+        </a>
         {% comment %} <li class="nav-item d-none d-sm-inline-block">
             <a href="books" class="nav-link">books</a>
         </li> {% endcomment %}
@@ -27,5 +30,14 @@
             </div>
         </div>
     </form>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+            {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-link">Login</a>
+            {% endif %}
+        </li>
+    </ul>
 </nav>
 <!-- /.navbar -->
