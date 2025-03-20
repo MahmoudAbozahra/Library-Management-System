@@ -13,6 +13,7 @@ def index(request):
             add_book = BookForm(request.POST, request.FILES)
             if add_book.is_valid():
                 add_book.save()
+                messages.success(request, "تم إضافة الكتاب بنجاح!")
         if request.user.has_perm('APP.add_category'):
             add_cat = CategoryForm(request.POST)
             if add_cat.is_valid():

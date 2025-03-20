@@ -105,9 +105,35 @@
                 <!-- /.row -->
 
                 <!-- form add books -->
-                <div class="row m-1 mb-3">
-                    <a href="#bookform" class="btn btn-primary" data-toggle="collapse">+ اضافة كتاب</a>
+                <div >
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBookModal">
+                        إضافة كتاب
+                      </button>                    
                 </div>
+                <div class="modal fade" id="addBookModal" tabindex="-1" aria-labelledby="addBookModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <form method="POST" enctype="multipart/form-data">
+                          {% csrf_token %}
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="addBookModalLabel">إضافة كتاب جديد</h5>
+                            <div class="d-flex justify-content-start">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            
+                          </div>
+                          <div class="modal-body">
+                            {{ form.as_p }}
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                            <button type="submit" class="btn btn-primary">إضافة</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  
 
                 <div id="bookform" class="card card-primary collapse">
                     <div class="card-header">
