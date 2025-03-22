@@ -13,11 +13,12 @@ def index(request):
             add_book = BookForm(request.POST, request.FILES)
             if add_book.is_valid():
                 add_book.save()
-                messages.success(request, "تم إضافة الكتاب بنجاح!")
+                messages.success(request, "Add book successfuly")
         if request.user.has_perm('APP.add_category'):
             add_cat = CategoryForm(request.POST)
             if add_cat.is_valid():
                 add_cat.save()
+                messages.success(request,'Add category successfuly')
     context = {
         'category': Category.objects.all(),
         'books': Books.objects.all(),
@@ -49,6 +50,8 @@ def books(request):
             add_cat = CategoryForm(request.POST)
             if add_cat.is_valid():
                 add_cat.save()
+                
+
 
     context = {
         'category': Category.objects.all(),
@@ -64,6 +67,7 @@ def delete(request, id):
     book_del = Books.objects.get(id=id)
     if request.method == 'POST':
         book_del.delete()
+        messages.success(request,'Book delete successfuly!')
         return redirect('/')
     return render(request, 'pages/delete.html')
 
@@ -75,6 +79,7 @@ def update(request, id):
         book_save = BookForm(request.POST, request.FILES, instance=book_id)
         if book_save.is_valid():
             book_save.save()
+            messages.success(request,'Book Update successfuly!')
             return redirect('/')
     else:
         book_save = BookForm(instance=book_id)
