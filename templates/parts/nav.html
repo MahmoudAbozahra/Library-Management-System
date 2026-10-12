@@ -1,4 +1,4 @@
-<!-- في المكان ده هحط الناف بار -->
+<!-- ÙÙŠ Ø§Ù„Ù…ÙƒØ§Ù† Ø¯Ù‡ Ù‡Ø­Ø· Ø§Ù„Ù†Ø§Ù Ø¨Ø§Ø± -->
 <!-- Navbar -->
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
@@ -33,7 +33,7 @@
     <ul class="navbar-nav ml-auto">
         <li class="nav-item">
             {% if user.is_authenticated %}
-                <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+                <form method="post" action="{% url 'logout' %}" class="nav-link">{% csrf_token %}<button type="submit" class="btn btn-link p-0">Logout</button></form>
             {% else %}
                 <a href="{% url 'login' %}" class="nav-link">Login</a>
             {% endif %}
