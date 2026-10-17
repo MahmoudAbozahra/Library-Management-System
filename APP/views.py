@@ -56,7 +56,6 @@ def books(request):
         {
             "category": Category.objects.all(),
             "books": search,
-            "form": BookForm(),
             "cat_form": CategoryForm(),
             "search_name": title,
         },

@@ -8,7 +8,7 @@ A Django application for browsing and maintaining a small library catalog. It in
 - Public book listing with case-insensitive title search.
 - Authenticated dashboard with catalog counts and rental/sales summaries.
 - Book create and update forms with numeric validation and optional images.
-- Role access through Django permissions: users with `add_books` can add, `change_books` can edit, and `delete_books` can delete books. Category creation uses `add_category`.
+- Role access through Django permissions: users with `add_books` can add, `change_books` can edit book details and status, and `delete_books` can delete books. Category creation uses `add_category`.
 - Django admin for staff who have admin access.
 
 The application stores book rental information (`retal_price_day`, `retal_period`, and `total_rental`); it does not implement checkout, due dates, or rental transactions.
@@ -24,18 +24,30 @@ The application stores book rental information (`retal_price_day`, `retal_period
 
 ## Setup
 
-1. Create and activate a virtual environment.
-2. Install dependencies: `python -m pip install -r requirements.txt`.
-3. Set variables listed in `.env.example` in your shell or IDE configuration. Django does not load `.env` files automatically; set a stable, unique `DJANGO_SECRET_KEY` in persistent environments.
-4. Apply migrations: `python manage.py migrate`.
-5. Create an administrator: `python manage.py createsuperuser`.
-6. Start the server: `python manage.py runserver`.
+Use the pip workflow below; `requirements.txt` is the project's dependency source. `pyproject.toml` contains pytest and Ruff configuration, not package dependencies, so `uv run` alone does not install Django or the requirements file.
 
-SQLite is the default and uses `db.sqlite3` in the project root. Set `DB_ENGINE=mysql` to use MySQL, then configure `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, and `DB_PORT`. Keep `.env` out of source control. `DJANGO_DEBUG` defaults to false; set it to `true` for local development. `DJANGO_ALLOWED_HOSTS` accepts a comma-separated host list.
+In Windows PowerShell:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+$env:DJANGO_SECRET_KEY = (python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())")
+$env:DJANGO_DEBUG = "true"
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+Generate the key once and keep it stable in your local environment if you want sessions to persist between server restarts. `.env.example` lists the supported settings, but Django does not load `.env` files automatically; set the variables in the shell or IDE run configuration. `DJANGO_DEBUG` defaults to false. Local development can omit `DJANGO_SECRET_KEY` when debug is true, but that generates a temporary key each process start. In production/non-debug mode, `DJANGO_SECRET_KEY` is required and startup fails clearly if it is missing. Existing keys are never rotated by the application.
+
+For SQLite, no database variables are needed; the default database is `db.sqlite3` in the project root. To use MySQL, set `DB_ENGINE=mysql` and configure `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, and `DB_PORT`.
+
+`DJANGO_ALLOWED_HOSTS` accepts a comma-separated host list and should be set to the deployment's hostnames. HTTPS redirect remains enabled by default when debug is false; configure `DJANGO_SECURE_SSL_REDIRECT=false` only where HTTPS is terminated elsewhere and the application must not redirect.
 
 ## User permissions
 
-Registration creates a regular Django user. Assign catalog permissions through Django admin or the shell. A typical Worker can receive `add_books` and `change_books` (and `add_category` if category entry is needed). Grant `delete_books` only to administrators. Customers can browse and search the catalog; the dashboard requires login. Django superusers bypass permission checks.
+Registration creates a regular Django user. Assign catalog permissions through Django admin or the shell. A typical Worker can receive `add_books` and `change_books` (and `add_category` if category entry is needed). `change_books` includes changing a book's status; `can_change_book_status` is not required. Grant `delete_books` only to administrators. Customers can browse and search the catalog; the dashboard requires login. Django superusers bypass permission checks.
 
 ## Tests and CI
 

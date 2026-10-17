@@ -1,18 +1,10 @@
-<div class="message-container text-center">
+<div class="message-container" aria-live="polite">
 {% if messages %}
     {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} text-center" role="alert" id="msg">
-            {{ message }}
+        <div class="alert alert-{{ message.tags }}" role="status" data-auto-dismiss>
+            <span>{{ message }}</span>
+            <button class="alert-close" type="button" aria-label="إغلاق التنبيه">×</button>
         </div>
     {% endfor %}
 {% endif %}
 </div>
-<script>
-    // Hide the message after 3 seconds (3000 milliseconds)
-    setTimeout(function() {
-        let msg = document.getElementById('msg');
-        if (msg) {
-            msg.style.display = 'none';
-        }
-    }, 3000);
-</script>

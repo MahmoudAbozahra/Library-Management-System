@@ -1,99 +1,60 @@
-<!-- في المكان ده هحط سلايد بار -->
-<!-- Main Sidebar Container -->
-<aside style="position: fixed;" class="main-sidebar sidebar-dark-primary elevation-4">
-    <!-- Brand Logo -->
-    <a href="{% url 'index' %}" class="brand-link">
-        <span class="brand-text font-weight-light">My Library</span>
+{% load static %}
+<aside class="app-sidebar" id="app-sidebar" aria-label="التنقل الرئيسي">
+    <a class="brand-link" href="{% if user.is_authenticated %}{% url 'index' %}{% else %}{% url 'books' %}{% endif %}">
+        <span class="brand-mark" aria-hidden="true"><i class="fas fa-book-open"></i></span>
+        <span class="brand-copy"><strong>My Library</strong><small>إدارة المكتبة</small></span>
     </a>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <!-- Sidebar user panel (optional) -->
-        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-            <div class="image">
-            </div>
-            <div class="info">
-                <a href="{% url 'index' %}" class="d-block">
-                    <span>user:</span>{{ request.user.username }}<i class="fa fa-user" aria-hidden="true"></i>
-                </a>
-            </div>
-        </div>
-
-        <!-- Sidebar Menu -->
-        <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-
-                <li class="nav-item">
-                    <a href="{% url 'books' %}" class="nav-link">
-                        <i class="nav-icon fas fa-th"></i>
-                        <p>
-                           Books
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-copy"></i>
-                        <p>
-                            Category
-                            <i class="fas fa-angle-left right"></i>
-
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-
-                        <li class="nav-item">
-                            <a id="addcat" href="#" class="nav-link">
-                                <i class="fa fa-plus "></i>
-                                <p class="text-light"> Add New </p>
-                            </a>
-                        </li>
-                        <form id="cat" method="POST">
-                            {% csrf_token %}
-                            <div id="cat">
-
-                                {{cat_form}}
-
-                                <button type="submit" class="btn btn-success">save</button>
-                                <button id="backcat" class="btn btn-primary ">back</button>
-                            </div>
-                        </form>
-
-                        {% for cat in category %}
-                        <li style="cursor: pointer;" class="nav-item cat{{cat.id}}">
-                            <a id="" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>{{cat.name}}</p>
-                            </a>
-                        </li>
-                        {% endfor %}
-
-                    </ul>
-                </li>
-
-                <li class="nav-header">الكتب المستعارة</li>
-
-                <li style="cursor: pointer;" class="nav-item statussold">
-                    <a id="statusSold" class="nav-link">
-                        <i class="nav-icon far fa-circle text-danger"></i>
-                        <p class="text">تم بيعه</p>
-                    </a>
-                </li>
-                <li style="cursor: pointer;" class="nav-item statusrental">
-                    <a id="" class="nav-link">
-                        <i class="nav-icon far fa-circle text-warning"></i>
-                        <p>تم استعارته</p>
-                    </a>
-                </li>
-                <li style="cursor: pointer;" class="nav-item statusavailble">
-                    <a id="" class="nav-link">
-                        <i class="nav-icon far fa-circle text-info"></i>
-                        <p>متاح</p>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <!-- /.sidebar-menu -->
+    {% if user.is_authenticated %}
+    <div class="sidebar-user">
+        <span class="user-avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+        <span class="user-copy"><strong>{{ request.user.username }}</strong><small>حساب مسجّل</small></span>
+        <span class="user-status" aria-label="متصل"></span>
     </div>
-    <!-- /.sidebar -->
+    {% endif %}
+    <nav class="sidebar-nav" aria-label="روابط المكتبة">
+        <p class="sidebar-label">القائمة الرئيسية</p>
+        {% if user.is_authenticated %}
+        <a class="sidebar-link{% if request.resolver_match.url_name == 'index' %} is-active{% endif %}" href="{% url 'index' %}" {% if request.resolver_match.url_name == 'index' %}aria-current="page"{% endif %}>
+            <i class="fas fa-chart-pie" aria-hidden="true"></i><span>لوحة التحكم</span>
+        </a>
+        {% endif %}
+        <a class="sidebar-link{% if request.resolver_match.url_name == 'books' %} is-active{% endif %}" href="{% url 'books' %}" {% if request.resolver_match.url_name == 'books' %}aria-current="page"{% endif %}>
+            <i class="fas fa-book" aria-hidden="true"></i><span>الكتب</span>
+        </a>
+        <details class="sidebar-section" open>
+            <summary class="sidebar-link"><i class="fas fa-layer-group" aria-hidden="true"></i><span>التصنيفات</span><i class="fas fa-chevron-down section-chevron" aria-hidden="true"></i></summary>
+            <div class="sidebar-subnav">
+                <button type="button" class="sidebar-filter is-selected" data-category-filter="all" aria-pressed="true">كل التصنيفات</button>
+                {% for cat in category %}<button type="button" class="sidebar-filter" data-category-filter="{{ cat.id }}" aria-pressed="false">{{ cat.name }}</button>{% empty %}<span class="sidebar-note">لا توجد تصنيفات بعد</span>{% endfor %}
+                {% if perms.APP.add_category %}
+                <details class="sidebar-add-category">
+                    <summary><i class="fas fa-plus" aria-hidden="true"></i> إضافة تصنيف</summary>
+                    <form method="post" action="{% url 'index' %}" class="sidebar-category-form">
+                        {% csrf_token %}<input type="hidden" name="add_category" value="1">
+                        {{ cat_form.as_p }}
+                        <button class="button button-small button-light" type="submit">حفظ التصنيف</button>
+                    </form>
+                </details>
+                {% endif %}
+            </div>
+        </details>
+        <details class="sidebar-section">
+            <summary class="sidebar-link"><i class="fas fa-filter" aria-hidden="true"></i><span>حالة الكتب</span><i class="fas fa-chevron-down section-chevron" aria-hidden="true"></i></summary>
+            <div class="sidebar-subnav">
+                <button type="button" class="sidebar-filter is-selected" data-status-filter="all" aria-pressed="true">كل الحالات</button>
+                <button type="button" class="sidebar-filter" data-status-filter="availble" aria-pressed="false">متاح</button>
+                <button type="button" class="sidebar-filter" data-status-filter="rental" aria-pressed="false">مُعار</button>
+                <button type="button" class="sidebar-filter" data-status-filter="sold" aria-pressed="false">مباع</button>
+            </div>
+        </details>
+        {% if user.is_staff %}<a class="sidebar-link" href="{% url 'admin:index' %}"><i class="fas fa-shield-alt" aria-hidden="true"></i><span>إدارة الموقع</span></a>{% endif %}
+    </nav>
+    <div class="sidebar-bottom">
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="sidebar-link sidebar-logout" type="submit"><i class="fas fa-sign-out-alt" aria-hidden="true"></i><span>تسجيل الخروج</span></button></form>
+        {% else %}
+        <a class="sidebar-link" href="{% url 'login' %}"><i class="fas fa-sign-in-alt" aria-hidden="true"></i><span>تسجيل الدخول</span></a>
+        <a class="sidebar-link" href="{% url 'register' %}"><i class="fas fa-user-plus" aria-hidden="true"></i><span>إنشاء حساب</span></a>
+        {% endif %}
+    </div>
 </aside>
