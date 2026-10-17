@@ -1,0 +1,14 @@
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "library.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+testpaths = ["APP"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = ["static", "library/static", "migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "DJ"]
+ignore = ["DJ001"]

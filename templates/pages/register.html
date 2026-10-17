@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="page-stack">
+    <section class="form-panel">
+        <p class="eyebrow-blue">انضم إلى المكتبة</p><h2>إنشاء حساب</h2><p class="form-intro">أنشئ حساباً للمتابعة إلى لوحة التحكم.</p>
+        {% if form.non_field_errors %}<div class="alert alert-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        <form method="post" action="{% url 'register' %}">
+            {% csrf_token %}
+            {% for field in form %}<p><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<span class="helptext">{{ field.help_text|safe }}</span>{% endif %}{{ field.errors }}</p>{% endfor %}
+            <div class="form-actions"><button class="button" type="submit">إنشاء الحساب</button><a class="button button-secondary" href="{% url 'login' %}">لديك حساب؟ سجّل الدخول</a></div>
+        </form>
+    </section>
+</div>
+{% endblock %}

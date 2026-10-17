@@ -1,275 +1,64 @@
- {% extends "base.html" %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}<script src="{% static 'plugins/chart.js/Chart.min.js' %}" defer></script>{% endblock %}
 
 {% block content %}
-{% include 'parts/alerts.html' %}
-<!-- في المكان ده هحط المحتوى -->
-<div style="direction: rtl;" class="wrapper">
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <!--الاحصائيات-->
-        <div class="content">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="card">
-                            <div class="card-header border-0">
-                                <div class="d-flex justify-content-between">
-                                    <h3 class="card-title">اجمالي عدد الكتب</h3>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <p class="d-flex flex-column">
-                                        <span class="text-bold text-lg">{{all_books}}</span>
-                                        <span>اجمالي عدد الكتب</span>
-                                    </p>
-                                </div>
-                                <!-- /.d-flex -->
-                                <div class="position-relative mb-4">
-                                    <canvas id="visitors-chart" height="200"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /.card -->
-                    </div>
-                    <!-- /.col-md-6 -->
-                    {% for book in books %}
-                     {% if book.price != None %}
-                     {% if book.status == 'sold' %}
-                       <p class="total_price"> {{book.price}} </p>
+<div class="page-stack">
+    <section class="page-intro">
+        <div><p class="eyebrow-blue">نظرة عامة</p><h2>مرحباً بك في مكتبتك</h2><p>تابع حالة الكتب وإدارة الكتالوج من مكان واحد.</p></div>
+        {% if perms.APP.add_books %}
+        <button class="button" type="button" data-open-dialog="add-book-dialog"><i class="fas fa-plus" aria-hidden="true"></i> إضافة كتاب</button>
+        {% endif %}
+    </section>
 
-                    {% endif %}
-                    {% endif %}
-                    {% if book.total_rental != None %}
-                    {% if book.status == 'rental' %}
-                      <p class="total_price"> {{book.total_rental}} </p>
-                   
-                   {% endif %}
-                   {% endif %}
-                    {% endfor %}
+    <section class="metric-grid" aria-label="ملخص المكتبة">
+        <article class="metric-card"><span class="metric-icon"><i class="fas fa-book" aria-hidden="true"></i></span><span class="metric-copy"><span>إجمالي الكتب النشطة</span><strong>{{ all_books|default:0 }}</strong></span></article>
+        <article class="metric-card"><span class="metric-icon is-teal"><i class="fas fa-book-open" aria-hidden="true"></i></span><span class="metric-copy"><span>الكتب المتاحة</span><strong>{{ books_availble|default:0 }}</strong></span></article>
+        <article class="metric-card"><span class="metric-icon is-rose"><i class="fas fa-shopping-bag" aria-hidden="true"></i></span><span class="metric-copy"><span>الكتب المباعة</span><strong>{{ books_sold|default:0 }}</strong></span></article>
+        <article class="metric-card"><span class="metric-icon is-amber"><i class="fas fa-clock" aria-hidden="true"></i></span><span class="metric-copy"><span>الكتب المعارة</span><strong>{{ books_rental|default:0 }}</strong></span></article>
+    </section>
 
-                    <div class="col-lg-6">
-                        <div class="card">
-                            <div class="card-header border-0">
-                                <div class="d-flex justify-content-between">
-                                    <h3 class="card-title">الارباح</h3>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <p class="d-flex flex-column">
-                                        <span id="totalsalarys" class="text-bold text-lg">$</span><br></p>
-                                </div>
-                                <!-- /.d-flex -->
+    <section class="chart-grid" aria-label="مخططات المكتبة">
+        <article class="panel">
+            <header class="panel-header"><div><h3>الإيرادات المسجلة</h3><p>قيمة الكتب المباعة وإجمالي الإعارات المسجلة</p></div><span class="panel-icon"><i class="fas fa-chart-bar" aria-hidden="true"></i></span></header>
+            {% if books_sold or books_rental %}<div class="chart-wrap"><canvas id="sales-chart" aria-label="مقارنة إيرادات البيع والإعارة" role="img"></canvas></div>
+            {% else %}<div class="empty-chart"><div><i class="fas fa-chart-bar" aria-hidden="true"></i><div>لا توجد إيرادات مسجلة لعرضها بعد.</div></div></div>{% endif %}
+        </article>
+        <article class="panel">
+            <header class="panel-header"><div><h3>توزيع حالة الكتب</h3><p>توزيع الكتب حسب الحالة المسجلة</p></div><span class="panel-icon"><i class="fas fa-chart-pie" aria-hidden="true"></i></span></header>
+            {% if books_availble or books_sold or books_rental %}<div class="chart-wrap"><canvas id="status-chart" data-available="{{ books_availble }}" data-sold="{{ books_sold }}" data-rental="{{ books_rental }}" aria-label="توزيع الكتب المتاحة والمباعة والمعارة" role="img"></canvas></div>
+            {% else %}<div class="empty-chart"><div><i class="fas fa-chart-pie" aria-hidden="true"></i><div>أضف كتباً لعرض توزيع الحالات.</div></div></div>{% endif %}
+        </article>
+    </section>
 
-                                <div class="position-relative mb-4">
-                                    <canvas id="sales-chart" height="160"></canvas>
-                                </div>
+    {% if perms.APP.add_books %}
+    <dialog class="app-dialog" id="add-book-dialog" data-auto-open="{{ form.errors|yesno:'true,false' }}" aria-labelledby="add-book-title">
+        <div class="dialog-header"><h2 id="add-book-title">إضافة كتاب جديد</h2><button class="dialog-close" type="button" data-close-dialog aria-label="إغلاق"><i class="fas fa-times" aria-hidden="true"></i></button></div>
+        <form method="post" action="{% url 'index' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="dialog-body">{{ form.as_p }}</div>
+            <div class="dialog-footer"><button class="button" type="submit">حفظ الكتاب</button><button class="button button-secondary" type="button" data-close-dialog>إلغاء</button></div>
+        </form>
+    </dialog>
+    {% endif %}
 
-                                <div class="d-flex flex-row justify-content-end">
-                                    <span class="mr-2">
-                      <i class="fas fa-square text-primary"></i> الاربح من بيع الكتب
-                      <p id="soldtotals"></p>     
-                    </span>
-                                    <span>
-                      <i class="fas fa-square text-gray"></i> الارباح من استعارة الكتب
-                      <p id="rentedtotals"></p>
-                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                     <!-- book rentaled -->
-                    {% for book in books %}
-                    {% if book.total_rental != None %}
-                    {% if book.status == 'rental' %}
-                      <p class="total_rent"> {{book.total_rental}} </p>
-                   {% endif %}
-                   {% endif %}
-                   {% endfor %}
-                   <p class="salary_rent"></p>
-
-                                        <!-- book sold -->
-                                        {% for book in books %}
-                                        {% if book.price != None %}
-                                        {% if book.status == 'sold' %}
-                                          <p class="total_sold"> {{book.price}} </p>
-                                       {% endif %}
-                                       {% endif %}
-                                       {% endfor %}
-                                       <p class="salary_sold"></p>
-
-                    <!-- /.col-md-6 -->
-                </div>
-                <!-- /.row -->
-
-                <!-- form add books -->
-                <div >
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBookModal">
-                        إضافة كتاب
-                      </button>                    
-                </div>
-                <div class="modal fade" id="addBookModal" tabindex="-1" aria-labelledby="addBookModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                      <div class="modal-content">
-                        <form method="POST" enctype="multipart/form-data">
-                          {% csrf_token %}
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="addBookModalLabel">إضافة كتاب جديد</h5>
-                            <div class="d-flex justify-content-start">
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            
-                          </div>
-                          <div class="modal-body">
-                            {{ form.as_p }}
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                            <button type="submit" class="btn btn-primary">إضافة</button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-                  
-
-                <div id="bookform" class="card card-primary collapse">
-                    <div class="card-header">
-                        <h3 class="card-title">اضافة كتاب</h3>
-                    </div>
-                    <!-- /.card-header -->
-                    <!-- form start -->
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="card-body">
-                            {{form}}
-                        </div>
-                        <!-- /.card-body -->
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary">اضافة</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- /.card -->
-            </div>
-            <!-- end form add books -->
-
-
-            <!-- تصنيفات-->
-
-            <div class="row justify-content-center mb-3">
-                <div class="col-4 ">
-                    <ul class="nav">
-                        {% for cat in category|slice:'4' %}
-                        <li class="nav-item cat{{cat.id}}">
-                            <a id="" class="nav-link bg-primary" href="#">{{cat.name}}</a>
-                        </li>
-                        {% endfor %}
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <!-- books -->
-            <div class="row">
-
-
-
-
-            {% for book in books %}
-                <!-- الكتب -->
-                   <div id="" class="col-md-4 bookhide book{{book.category.id}} book{{book.status}}">
-                    <!-- Widget: user widget style 1 -->
-                    <div id="" class="card card-widget widget-user ">
-                        <!-- Add the bg color to the header using any of the bg-* classes -->
-                        <!-- قائمة منسدلة -->
-                        <div style="position: absolute;" class="btn-group">
-                            <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                    </button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{% url 'update' book.id %}">تعديل</a>
-                                <a class="dropdown-item" href="{% url 'delete' book.id %}">حذف</a>
-                                <!-- Button trigger modal -->
-                            </div>
-                        </div>
-                        {% if book.photo_book %}
-                        <div style="background: url({{book.photo_book.url}}); background-size: cover" class="widget-user-header bg-info">
-                        {% endif %}
-                            <h3 class="widget-user-username">{{book.title}}</h3>
-                            <h5 class="widget-user-desc">{{book.author}}</h5>
-                        </div>
-                        <div class="widget-user-image">
-                            {% if book.photo_author %}
-                            <img style="width:100px; height: 100px;" class="img-circle elevation-2" src={{book.photo_author.url}} alt="User Avatar">
-                            {% endif %}
-                        </div>
-                        <div class="card-footer">
-                            <div class="row">
-                                <div class="col-sm-4 border-right">
-                                    <div class="description-block">
-                                        <h5 class="description-header">{{book.pages}}</h5>
-                                        <span class="description-text">صفحة</span>
-                                    </div>
-                                    <!-- /.description-block -->
-                                </div>
-                                <!-- /.col -->
-                                <div class="col-sm-4 border-right">
-                                    <div class="description-block">
-                                        {% if book.price %}
-                                        <h5 class="description-header">${{book.price}}</h5>
-                                        <span class="description-text">السعر</span>
-                                        {% elif book.retal_price_day %}
-                                        <h5 class="description-header">${{book.retal_price_day}}</h5>
-                                        <span class="description-text">سعر ايجار اليوم</span>
-                                        {% endif %}
-                                    </div>
-                                    <!-- /.description-block -->
-                                </div>
-                                <!-- /.col -->
-                                <div class="col-sm-4">
-                                    <div class="description-block">
-                                        {% if book.status == 'availble'%}
-                                        <h5 class="description-header text-success">{{book.status}}</h5>
-                                        <span class="description-text">الحالة</span>
-                                        {%  elif book.status == 'rental'  %}
-                                        <h5 class="description-header text-warning">{{book.status}}</h5>
-                                        <span class="description-text">الحالة</span>
-                                        {% else %}
-                                        <h5 class="description-header text-danger">{{book.status}}</h5>
-                                        <span class="description-text">الحالة</span>
-                                        {% endif %}
-                                    </div>
-                                    <!-- /.description-block -->
-                                </div>
-                                <!-- /.col -->
-                            </div>
-                            <!-- /.row -->
-                        </div>
-                    </div>
-                    <!-- /.widget-user -->
-                   </div>
-                <!-- نهاية الكتاب -->
-            {% endfor %}
-
-
-
-
-
-                <div class="row">
-                    <div class="col text-center">
-                        <!--اضف صورة هنا في حالة عدم وجود كتب-->
-                    </div>
-                </div>
-            </div>
+    <section class="page-stack" aria-labelledby="dashboard-books-title">
+        <header class="section-heading"><div><h2 id="dashboard-books-title">كتالوج الكتب</h2><p>استعرض تفاصيل الكتب وحالتها الحالية.</p></div><span class="filter-summary">{{ books|length }} كتاب</span></header>
+        {% if books %}
+        <div class="book-grid">
+            {% for book in books %}{% include "parts/book_card.html" with book=book %}{% endfor %}
         </div>
-    </div>
-    <!-- /.container-fluid -->
-</div>
-<!-- /.content -->
-</div>
-<!-- /.content-wrapper -->
+        <p class="empty-panel" data-filtered-empty hidden>لا توجد كتب تطابق عوامل التصفية المحددة.</p>
+        {% else %}
+        <div class="empty-panel"><i class="fas fa-book" aria-hidden="true"></i><h3>لا توجد كتب في الكتالوج بعد</h3><p>ستظهر الكتب هنا بعد إضافتها إلى المكتبة.</p>{% if perms.APP.add_books %}<button class="button" type="button" data-open-dialog="add-book-dialog"><i class="fas fa-plus" aria-hidden="true"></i> إضافة أول كتاب</button>{% endif %}</div>
+        {% endif %}
+    </section>
 
-{% endblock content %}
+    <div class="visually-hidden" aria-hidden="true">
+        {% for book in books %}
+        <span data-sales-item data-sale-amount="{% if book.status == 'sold' and book.price != None %}{{ book.price }}{% else %}0{% endif %}" data-rental-amount="{% if book.status == 'rental' and book.total_rental != None %}{{ book.total_rental }}{% else %}0{% endif %}"></span>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

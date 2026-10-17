@@ -1,0 +1,32 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+Lib/
+Include/
+Scripts/
+pyvenv.cfg
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+
+# Databases and generated user content
+*.sqlite3
+*.db
+media/
+staticfiles/
+
+# Tooling and editor files
+.idea/
+.vscode/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
